@@ -32,9 +32,13 @@ RUN pnpm ui:build
 
 ENV NODE_ENV=production
 
+# Create data directory with correct permissions for non-root user
+RUN mkdir -p /data && chown -R node:node /data
+
 # Security hardening: Run as non-root user
 # The node:22-bookworm image includes a 'node' user (uid 1000)
 # This reduces the attack surface by preventing container escape via root privileges
 USER node
 
-CMD ["node", "dist/index.js"]
+# Start gateway bound to all interfaces using PORT env var (default 8080)
+CMD ["sh", "-c", "node dist/index.js gateway run --bind 0.0.0.0 --port ${PORT:-8080}"]
