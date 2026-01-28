@@ -41,5 +41,5 @@ RUN mkdir -p /data && chown -R node:node /data
 USER node
 
 # Start gateway bound to all interfaces using PORT env var (default 8080)
-# --allow-unconfigured lets the gateway start without prior setup (configure via /setup)
-CMD ["sh", "-c", "node dist/index.js gateway run --bind 0.0.0.0 --port ${PORT:-8080} --allow-unconfigured"]
+# --dev creates a dev config if missing, --allow-unconfigured skips mode check
+CMD ["sh", "-c", "node dist/index.js gateway --dev --bind lan --port ${PORT:-8080} --allow-unconfigured"]
