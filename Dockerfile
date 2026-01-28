@@ -40,5 +40,6 @@ RUN mkdir -p /data && chown -R node:node /data
 # This reduces the attack surface by preventing container escape via root privileges
 USER node
 
-# Default CMD - Render overrides via dockerCommand in render.yaml
-CMD ["node", "dist/index.js"]
+# Start gateway with dev mode (creates config if missing)
+# Uses PORT env var from Render (default 8080)
+CMD node dist/index.js gateway --dev --allow-unconfigured --bind lan --port ${PORT:-8080}
