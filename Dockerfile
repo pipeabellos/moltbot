@@ -41,5 +41,5 @@ RUN mkdir -p /data && chown -R node:node /data
 USER node
 
 # Start gateway with dev mode (creates config if missing)
-# Uses PORT env var from Render (default 8080)
-CMD node dist/index.js gateway --dev --allow-unconfigured --bind lan --port ${PORT:-8080}
+# --bind lan = 0.0.0.0, Render default port is 10000
+CMD node dist/index.js gateway --dev --allow-unconfigured --bind lan --port ${PORT:-10000}
