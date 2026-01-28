@@ -35,6 +35,10 @@ ENV NODE_ENV=production
 # Create data directory with correct permissions for non-root user
 RUN mkdir -p /data && chown -R node:node /data
 
+# Copy and set up entrypoint script
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 # Security hardening: Run as non-root user
 # The node:22-bookworm image includes a 'node' user (uid 1000)
 # This reduces the attack surface by preventing container escape via root privileges
@@ -42,4 +46,4 @@ USER node
 
 # Start gateway with dev mode (creates config if missing)
 # --bind lan = 0.0.0.0, Render default port is 10000
-CMD node dist/index.js gateway --dev --allow-unconfigured --bind lan --port ${PORT:-10000}
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
