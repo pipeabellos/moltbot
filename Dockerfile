@@ -42,5 +42,5 @@ USER node
 
 # Start gateway bound to all interfaces using PORT env var (default 8080)
 # --dev creates a dev config if missing, --allow-unconfigured skips mode check
-# --token reads from CLAWDBOT_GATEWAY_TOKEN env var set in render.yaml
-CMD ["sh", "-c", "node dist/index.js gateway --dev --bind lan --port ${PORT:-8080} --allow-unconfigured --token ${CLAWDBOT_GATEWAY_TOKEN}"]
+# Token is read from CLAWDBOT_GATEWAY_TOKEN env var automatically by the gateway
+CMD ["sh", "-c", "exec node dist/index.js gateway --dev --bind lan --port ${PORT:-8080} --allow-unconfigured"]
