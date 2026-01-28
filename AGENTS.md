@@ -1,4 +1,8 @@
-# Repository Guidelines
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository Guidelines
 - Repo: https://github.com/moltbot/moltbot
 - GitHub issues/comments/PR comments: use literal multiline strings or `-F - <<'EOF'` (or $'...') for real newlines; never embed "\\n".
 
@@ -14,6 +18,35 @@
   - Core channel code: `src/telegram`, `src/discord`, `src/slack`, `src/signal`, `src/imessage`, `src/web` (WhatsApp web), `src/channels`, `src/routing`
   - Extensions (channel plugins): `extensions/*` (e.g. `extensions/msteams`, `extensions/matrix`, `extensions/zalo`, `extensions/zalouser`, `extensions/voice-call`)
 - When adding channels/extensions/apps/docs, review `.github/labeler.yml` for label coverage.
+
+## High-Level Architecture
+
+Moltbot is a personal AI assistant with a local-first Gateway as its control plane:
+
+```
+Channels (WhatsApp/Telegram/Slack/Discord/Signal/iMessage/...)
+                │
+                ▼
+┌───────────────────────────────┐
+│            Gateway            │  ← WebSocket server (src/gateway/)
+│       ws://127.0.0.1:18789    │     Manages sessions, channels, tools, events
+└──────────────┬────────────────┘
+               │
+               ├─ Pi Agent (RPC)     ← AI runtime (src/agents/)
+               ├─ CLI (moltbot …)    ← Command interface (src/cli/, src/commands/)
+               ├─ Control UI         ← Web dashboard (ui/, src/gateway/control-ui.ts)
+               ├─ macOS/iOS/Android  ← Native apps (apps/)
+               └─ Extensions         ← Channel plugins (extensions/)
+```
+
+**Key subsystems:**
+- **Gateway** (`src/gateway/`): WS control plane—sessions, presence, config, cron, webhooks, canvas host. Entry: `src/gateway/server.impl.ts`.
+- **Agents** (`src/agents/`): Pi agent runtime in RPC mode with tool streaming, auth profiles, model failover, bash tools, and CLI runners.
+- **Channels** (`src/telegram/`, `src/discord/`, `src/slack/`, etc.): Platform-specific adapters that connect to Gateway. Shared routing logic in `src/routing/` and `src/channels/`.
+- **CLI** (`src/cli/`, `src/commands/`): Commander-based CLI wiring. Entry point: `src/entry.ts` → `src/cli/run-main.ts` → `src/cli/program.ts`.
+- **Config** (`src/config/`): Layered config system with schemas, validation, and hot-reload support.
+- **Extensions** (`extensions/`): Plugin architecture for channels (MS Teams, Matrix, Zalo), auth providers, and features. Each extension is a workspace package.
+- **Native apps** (`apps/`): macOS (SwiftUI menu bar app), iOS, Android—all connect to Gateway over WS/Bonjour.
 
 ## Docs Linking (Mintlify)
 - Docs are hosted on Mintlify (docs.molt.bot).
